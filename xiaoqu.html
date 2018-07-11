@@ -1,0 +1,222 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<title>上海房价地图</title>  
+<style type="text/css">
+  html {height:100%}
+  body {
+    height:100%; 
+    margin: 0px; 
+    padding: 0px;} 
+  #main {
+    width: 100%; 
+    height: 100%;}
+</style>  
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+
+</head>  
+ 
+<body>  
+<div id="main"></div> 
+<script type="text/javascript">
+$.get('xiaoqu.json', function(points) {  
+  var data = [];
+  console.log('points: ' + points.length);
+  for (var i in points) {
+    data.push([points[i].lng, points[i].lat, 
+              points[i].price_show, points[i].title, 
+              points[i].district, points[i].subdistrict,
+              points[i].link]);
+  }
+  console.log('data: ' + data.length);
+
+  var myChart = echarts.init(document.getElementById('main'));
+
+  window.addEventListener('resize', function () {
+    myChart.resize();
+  }); 
+
+  myChart.on('click', function (params) {
+    window.open(params.value[6]);
+  });
+
+  myChart.setOption({
+    tooltip: {
+      trigger: 'item',
+      formatter: function (param) {
+        var value = param.value;
+        return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
+            + value[3] + ': ' + value[2] + '万</div>'
+            + value[4] + ' ' + value[5] + '<br>';
+      }
+    },
+    legend: {
+      orient: 'vertical',
+      y: 'bottom',
+      x: 'right',
+      data: ['价格'],
+      textStyle: {
+          color: '#fff'
+      }
+    },
+    visualMap: {
+      left: 'right',
+      bottom: '0%',
+      min: 0,
+      max: 13,
+      dimension: 2,
+      precision: 0.1,
+      text: ['万/平'],
+      textGap: 20,
+      calculable: true,
+      inRange: {
+          color: ['#50a3ba', '#eac736', 'red']
+      },
+      textStyle: {
+          color: '#000'
+      }
+    },
+    bmap: {
+      center: [121.488, 31.249],  //上海
+      zoom: 12,
+      roam: true,  //允许缩放      
+      mapStyle: {  // 参考：http://lbsyun.baidu.com/custom/
+        styleJson: [
+        // 地图背景
+        {
+            'featureType': 'water',
+            'elementType': 'all',
+            'stylers': {
+                'color': '#d1d1d1'
+            }
+        }, {
+            'featureType': 'land',
+            'elementType': 'all',
+            'stylers': {
+                'color': '#f3f3f3'
+            }
+        }, {
+            'featureType': 'green',
+            'elementType': 'all',
+            'stylers': {
+                'color': '#ccffcc'
+            }
+        }, {
+            'featureType': 'manmade',  //人造区域（地铁站、学校、医院、景点等）
+            'elementType': 'all',
+            'stylers': {
+              //总开关优先于子开关，无法单独显示学校、医院而不显示其他
+              'visibility': 'off'
+            }
+        }, {
+            'featureType': 'building',
+            'elementType': 'all',
+            'stylers': {
+                'color': '#eeeeee'  //darker than land
+            }
+        // 道路
+        }, {
+            'featureType': 'railway',
+            'elementType': 'all',
+            'stylers': {
+                'visibility': 'off'
+            }
+        }, {
+            'featureType': 'subway',
+            'elementType': 'all',
+            'stylers': {
+                'weight': '0.5',
+                'color': '#99ccff'
+            }
+        }, {
+            'featureType': 'subway',
+            'elementType': 'labels',
+            'stylers': {
+                'visibility': 'off'
+            }
+        }, {
+            'featureType': 'highway',  //高速及国道
+            'elementType': 'all',
+            'stylers': {
+                'color': '#fefefe'
+            }
+        }, {
+            'featureType': 'highway',
+            'elementType': 'labels',
+            'stylers': {
+                'visibility': 'off'
+            }
+        }, {
+            'featureType': 'arterial',  //干道
+            'elementType': 'all',
+            'stylers': {
+                'color': '#fdfdfd'
+            }
+        }, {
+            'featureType': 'arterial',
+            'elementType': 'labels',
+            'stylers': {
+                'visibility': 'off'
+            }
+        }, {
+            'featureType': 'local',  //普通道路
+            'elementType': 'all',
+            'stylers': {
+                'color': '#fcfcfc'
+            }
+        // 兴趣点
+        }, {
+            'featureType': 'poi',
+            'elementType': 'all',
+            'stylers': {
+                'visibility': 'off'
+            }
+        // 行政区域
+        }, {
+            'featureType': 'boundary',  //国界及省界
+            'elementType': 'all',
+            'stylers': {
+                'color': '#bf9000'
+            }
+        }, {
+            'featureType': 'label',
+            'elementType': 'all',
+            'stylers': {
+                'visibility': 'off'
+            }
+        }]
+      }
+    },
+    series: [{
+        name: 'house',
+        type: 'scatter',
+        coordinateSystem: 'bmap',
+        data: data,
+        label: {
+            normal: {
+                show: false
+            },
+            emphasis: {
+                show: false
+            }
+        },
+        itemStyle: {
+            emphasis: {
+                borderColor: '#fff',
+                borderWidth: 1
+            },
+            normal: {
+                opacity: 0.5
+            }
+        }
+    }]
+  });
+});
+</script>  
+</body>  
+</html>
