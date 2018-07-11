@@ -10,7 +10,7 @@
 python serve.py
 
 ## 效果
-![上海房价地图](xiaoqu.git)
+![上海房价地图](xiaoqu.gif)
 
 ## 其他
 抓取链家小区数据的脚本以及数据的处理[xiaoqu.ipynb](xiaoqu.ipynb)
