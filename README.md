@@ -7,7 +7,9 @@
 [Python3](http://www.runoob.com/python/python-install.html)
 
 ### 运行
-python serve.py
+[演示页面](https://springga.github.io/shanghai-houseprice/xiaoqu.html)
+
+或者本地运行：python serve.py
 
 ### 效果
 <img src="animation.gif">
